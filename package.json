@@ -1,7 +1,7 @@
 {
-  "name": "@thaitype/minimal-typescript-node-esm-starter",
+  "name": "@thaitype/vitepress-typed-navbar",
   "version": "1.0.0",
-  "description": "minimal-typescript-node-esm-starter",
+  "description": "Vitepress Utils Library for Wrapping type-safe Navbar for support localization (i18n)",
   "type": "module",
   "main": "./dist/main.cjs",
   "module": "./dist/main.js",
@@ -16,6 +16,7 @@
   "scripts": {
     "start": "bun src/main.ts",
     "dev": "bun --watch src/main.ts",
+    "prepublishOnly": "bun run build",
     "build": "tsup src/main.ts --dts --format esm,cjs",
     "format": "prettier -w src",
     "lint": "tsc --noEmit && eslint ./src && prettier -c src",
@@ -30,6 +31,7 @@
     "eslint": "^8.56.0",
     "prettier": "^3.1.1",
     "tsup": "^8.0.1",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "vitepress": "^1.2.2"
   }
 }
