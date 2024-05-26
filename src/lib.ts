@@ -1,6 +1,6 @@
-import type { DefaultTheme } from 'vitepress';
+import type { DefaultTheme } from "vitepress";
 
-export type BaseSidebar = Omit<DefaultTheme.SidebarItem, 'items' | 'base'> & {
+export type BaseSidebar = Omit<DefaultTheme.SidebarItem, "items" | "base"> & {
   /**
    * The order of the sidebar item.
    */
@@ -19,7 +19,8 @@ export type BaseSidebar = Omit<DefaultTheme.SidebarItem, 'items' | 'base'> & {
   isOverrided?: boolean;
 };
 
-export type Mode = 'add' | 'override';
+export type ObjectKey = string | number | symbol;
+export type Mode = "add" | "override";
 export type SidebarMetadata = BaseSidebar;
 export type SidebarItem = BaseSidebar & {
   /**
@@ -30,7 +31,7 @@ export type SidebarItem = BaseSidebar & {
   key: string;
   items?: SidebarItem[];
 };
-export type SingleSidebarItem = Omit<SidebarItem, 'items'>;
+export type SingleSidebarItem = Omit<SidebarItem, "items">;
 export type AbsoluteLink = string;
 export type RelativeLink = string;
 
@@ -39,9 +40,9 @@ export type RelativeLink = string;
  * @param str
  * @returns
  */
-export const trimSlash = (str: string) => str.replace(/^\/|\/$/g, '');
+export const trimSlash = (str: string) => str.replace(/^\/|\/$/g, "");
 
-export type SidebarOptions = Pick<DefaultTheme.SidebarItem, 'collapsed'> & {
+export type SidebarOptions = Pick<DefaultTheme.SidebarItem, "collapsed"> & {
   /**
    * The initial order for the sidebar item.
    *
@@ -83,9 +84,9 @@ export class Sidebar<
     return this.setGroup(group, value) as unknown as Sidebar<Groups & Record<Link, SidebarMetadata>, Items>;
   }
 
-  setGroup<Link extends AbsoluteLink>(group: Link, value: SidebarMetadata, mode: Mode = 'add') {
-    if (mode === 'add') value.order = this.order++;
-    if (mode === 'override') {
+  setGroup<Link extends AbsoluteLink>(group: Link, value: SidebarMetadata, mode: Mode = "add") {
+    if (mode === "add") value.order = this.order++;
+    if (mode === "override") {
       if (!this.groups[group]) {
         throw new Error(`Group '${group}' is not found`);
       }
@@ -104,16 +105,30 @@ export class Sidebar<
     return this;
   }
 
-  protected setItem(
-    group: string | number | symbol,
-    key: string | number | symbol,
-    value: SidebarMetadata,
-    mode: Mode = 'add'
-  ) {
-    if (mode === 'add') value.order = this.order++;
-    const parsedGroup = trimSlash(String(group)) === '' ? '' : trimSlash(String(group)) + '/';
-    const mergedKey = `/${parsedGroup}${trimSlash(String(key))}`;
-    if (mode === 'override') {
+  /**
+   * Merge the group and key to the full path.
+   *
+   * Using the group `type-programming/loop` and key `mapped-types`,
+   * return `/type-programming/loop/mapped-types`
+   *
+   * If the group is undefined, it will return the key as the full path.
+   * Using the key `mapped-types`, return `/mapped-types`
+   *
+   * @param group GroupKey
+   * @param key Key or Full path
+   * @returns
+   */
+
+  private mergeKey(group: ObjectKey | undefined, key: ObjectKey) {
+    if (group === undefined) return `/${trimSlash(String(key))}`;
+    const parsedGroup = trimSlash(String(group)) === "" ? "" : trimSlash(String(group)) + "/";
+    return `/${parsedGroup}${trimSlash(String(key))}`;
+  }
+
+  protected setItem(group: ObjectKey | undefined, key: ObjectKey, value: SidebarMetadata, mode: Mode = "add") {
+    if (mode === "add") value.order = this.order++;
+    const mergedKey = this.mergeKey(group, key);
+    if (mode === "override") {
       if (!this.items[mergedKey]) {
         throw new Error(`Item '${mergedKey}' is not found`);
       }
@@ -130,16 +145,20 @@ export class Sidebar<
     return this;
   }
 
-  add<Link extends RelativeLink>(group: keyof Groups, key: Link, value: SidebarMetadata) {
-    return this.setItem(group, key, value) as unknown as Sidebar<Groups, Items & Record<Link, SidebarMetadata>>;
+  add<Link extends RelativeLink, Group extends Extract<keyof Groups, string>, Key extends `${Group}/${Link}`>(
+    group: Group,
+    key: Link,
+    value: SidebarMetadata
+  ) {
+    return this.setItem(group, key, value) as unknown as Sidebar<Groups, Items & Record<Key, SidebarMetadata>>;
   }
 
-  override(group: keyof Groups, key: keyof Items, value: SidebarMetadata) {
-    return this.setItem(group, key, value, 'override') as unknown as Sidebar<Groups, Items>;
+  override(key: keyof Items, value: SidebarMetadata) {
+    return this.setItem(undefined, key, value, "override") as unknown as Sidebar<Groups, Items>;
   }
 
   overrideGroup<Link extends AbsoluteLink>(group: Link, value: SidebarMetadata) {
-    return this.setGroup(group, value, 'override') as unknown as Sidebar<Groups, Items>;
+    return this.setGroup(group, value, "override") as unknown as Sidebar<Groups, Items>;
   }
 
   /**
@@ -175,16 +194,16 @@ export class Sidebar<
   public generateSidebarItemGroup(): SidebarItem[] {
     const items: SidebarItem[] = [];
     for (const [key, value] of Object.entries(this.groups)) {
-      const split = key.split('/');
+      const split = key.split("/");
       if (split.length === 1) {
-        throw new Error('Invalid group key, it should start with `/`');
+        throw new Error("Invalid group key, it should start with `/`");
       }
       let parentItems = items;
       for (let i = 1; i < split.length - 1; i++) {
-        const parentKey = split.slice(0, i + 1).join('/');
+        const parentKey = split.slice(0, i + 1).join("/");
         const parent = parentItems.find(item => item.key === parentKey);
         if (!parent) {
-          throw new Error('Parent group is not found or wrong order');
+          throw new Error("Parent group is not found or wrong order");
         }
         if (!parent.items) {
           parent.items = [];
@@ -193,7 +212,7 @@ export class Sidebar<
       }
       const isExist: boolean = parentItems.some(item => item.key === key);
       if (isExist) {
-        throw new Error('Duplicate group key');
+        throw new Error("Duplicate group key");
       }
       parentItems.push({
         key,
@@ -204,9 +223,9 @@ export class Sidebar<
   }
 
   private getGroupKey(key: string) {
-    const split = trimSlash(key).split('/');
-    const groupKey = split.slice(0, split.length - 1).join('/');
-    return '/' + groupKey;
+    const split = trimSlash(key).split("/");
+    const groupKey = split.slice(0, split.length - 1).join("/");
+    return "/" + groupKey;
   }
   /**
    * Loop in nested sidebar items and set the key and items.
@@ -229,10 +248,10 @@ export class Sidebar<
          * If the link is exist, append the link with the findKey (group prefix path)
          */
         if (link) {
-          const parsedFindKey = trimSlash(findKey) === '' ? '' : '/' + trimSlash(findKey);
-          const prefixLink = prefix ?? globalPrefixLink ?? '';
+          const parsedFindKey = trimSlash(findKey) === "" ? "" : "/" + trimSlash(findKey);
+          const prefixLink = prefix ?? globalPrefixLink ?? "";
           const newLink = `${prefixLink}${parsedFindKey}/${trimSlash(link)}`;
-          if (prefixLink === '' && this.options.extraMessage && isOverrided) {
+          if (prefixLink === "" && this.options.extraMessage && isOverrided) {
             newValue.text = `${newValue.text} ${this.options.extraMessage}`;
           } else {
             (newValue as SingleSidebarItem).link = newLink;

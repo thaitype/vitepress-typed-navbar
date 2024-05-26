@@ -194,7 +194,7 @@ describe("Sidebar Override", () => {
 
     const sidebar = baseSidebar
       .clone()
-      .override("/loop/mapped-types", "intro", { text: "Mapped Types", link: `/mapped-types` })
+      .override("/loop/mapped-types/intro", { text: "Mapped Types", link: `/mapped-types` })
       .toSidebarItems();
 
     expect(sidebar).toStrictEqual([
@@ -223,10 +223,7 @@ describe("Sidebar Override", () => {
       .addGroup("/loop/mapped-types", { text: "Mapped Types" })
       .add("/loop/mapped-types", "intro", { text: "Introduction", link: `/intro` });
 
-    const sidebar = baseSidebar
-      .clone()
-      .override("/loop/mapped-types", "intro", { text: "Mapped Types" })
-      .toSidebarItems();
+    const sidebar = baseSidebar.clone().override("/loop/mapped-types/intro", { text: "Mapped Types" }).toSidebarItems();
 
     expect(sidebar).toStrictEqual([
       {
@@ -256,10 +253,7 @@ describe("Sidebar Override", () => {
       .addGroup("/loop/mapped-types", { text: "Mapped Types" })
       .add("/loop/mapped-types", "intro", { text: "Introduction", link: `/intro` });
 
-    const sidebar = baseSidebar
-      .clone()
-      .override("/loop/mapped-types", "intro", { text: "Mapped Types" })
-      .toSidebarItems();
+    const sidebar = baseSidebar.clone().override("/loop/mapped-types/intro", { text: "Mapped Types" }).toSidebarItems();
 
     expect(sidebar).toStrictEqual([
       {
@@ -294,7 +288,7 @@ describe("Sidebar Override", () => {
 
     const sidebar = baseSidebar
       .clone()
-      .override("/loop/mapped-types", "intro", { text: "Mapped Types" })
+      .override("/loop/mapped-types/intro", { text: "Mapped Types" })
       .toSidebarItems("/th");
 
     expect(sidebar).toStrictEqual([
@@ -326,7 +320,7 @@ describe("Sidebar Override", () => {
 
     const sidebar = baseSidebar
       .clone()
-      .override("/loop/mapped-types", "intro", { text: "Mapped Types", prefix: '/th' })
+      .override("/loop/mapped-types/intro", { text: "Mapped Types", prefix: "/th" })
       .toSidebarItems("");
 
     expect(sidebar).toStrictEqual([
