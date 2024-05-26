@@ -194,7 +194,7 @@ describe("Sidebar Override", () => {
 
     const sidebar = baseSidebar
       .clone()
-      .override("/loop/mapped-types", "intro", { text: "Mapped Types", link: `/mapped-types` })
+      .override("/loop/mapped-types/intro", { text: "Mapped Types", link: `/mapped-types` })
       .toSidebarItems();
 
     expect(sidebar).toStrictEqual([
@@ -223,10 +223,7 @@ describe("Sidebar Override", () => {
       .addGroup("/loop/mapped-types", { text: "Mapped Types" })
       .add("/loop/mapped-types", "intro", { text: "Introduction", link: `/intro` });
 
-    const sidebar = baseSidebar
-      .clone()
-      .override("/loop/mapped-types", "intro", { text: "Mapped Types" })
-      .toSidebarItems();
+    const sidebar = baseSidebar.clone().override("/loop/mapped-types/intro", { text: "Mapped Types" }).toSidebarItems();
 
     expect(sidebar).toStrictEqual([
       {
@@ -256,10 +253,7 @@ describe("Sidebar Override", () => {
       .addGroup("/loop/mapped-types", { text: "Mapped Types" })
       .add("/loop/mapped-types", "intro", { text: "Introduction", link: `/intro` });
 
-    const sidebar = baseSidebar
-      .clone()
-      .override("/loop/mapped-types", "intro", { text: "Mapped Types" })
-      .toSidebarItems();
+    const sidebar = baseSidebar.clone().override("/loop/mapped-types/intro", { text: "Mapped Types" }).toSidebarItems();
 
     expect(sidebar).toStrictEqual([
       {
@@ -294,7 +288,7 @@ describe("Sidebar Override", () => {
 
     const sidebar = baseSidebar
       .clone()
-      .override("/loop/mapped-types", "intro", { text: "Mapped Types" })
+      .override("/loop/mapped-types/intro", { text: "Mapped Types" })
       .toSidebarItems("/th");
 
     expect(sidebar).toStrictEqual([
@@ -326,7 +320,7 @@ describe("Sidebar Override", () => {
 
     const sidebar = baseSidebar
       .clone()
-      .override("/loop/mapped-types", "intro", { text: "Mapped Types", prefix: '/th' })
+      .override("/loop/mapped-types/intro", { text: "Mapped Types", prefix: "/th" })
       .toSidebarItems("");
 
     expect(sidebar).toStrictEqual([
@@ -352,11 +346,12 @@ describe("Sidebar Override", () => {
   });
 });
 
-describe("Sidebar with default Optionas", () => {
+describe("Sidebar with default Option", () => {
   test("Add group and sidebar, with default options and can override", () => {
     const sidebar = new Sidebar({
       collapsed: true,
     })
+      // Override the collapsed value from the default option of Sidebar
       .addGroup("/", { text: "Start Reading", collapsed: false })
       .addGroup("/loop", { text: "Loop" })
       .addGroup("/loop/mapped-types", { text: "Mapped Types" })
@@ -385,6 +380,43 @@ describe("Sidebar with default Optionas", () => {
           {
             key: "/loop/recursive-types",
             collapsed: true,
+            text: "Recursive Types",
+            items: [{ key: "/loop/recursive-types/intro", text: "Introduction", link: `/loop/recursive-types/intro` }],
+          },
+        ],
+      },
+    ]);
+  });
+});
+
+describe("Sidebar with default link", () => {
+  test("Add group and sidebar, with default link", () => {
+    const sidebar = new Sidebar()
+      // Override the collapsed value from the default option of Sidebar
+      .addGroup("/", { text: "Start Reading"})
+      .addGroup("/loop", { text: "Loop" })
+      .addGroup("/loop/mapped-types", { text: "Mapped Types" })
+      .addGroup("/loop/recursive-types", { text: "Recursive Types" })
+      .add("/loop/mapped-types", "intro", { text: "Introduction" , link: `/xxx` })
+      .add("/loop/recursive-types", "intro", { text: "Introduction" })
+      .toSidebarItems();
+
+    expect(sidebar).toStrictEqual([
+      {
+        key: "/",
+        text: "Start Reading",
+      },
+      {
+        key: "/loop",
+        text: "Loop",
+        items: [
+          {
+            key: "/loop/mapped-types",
+            text: "Mapped Types",
+            items: [{ key: "/loop/mapped-types/intro", text: "Introduction", link: `/loop/mapped-types/xxx` }],
+          },
+          {
+            key: "/loop/recursive-types",
             text: "Recursive Types",
             items: [{ key: "/loop/recursive-types/intro", text: "Introduction", link: `/loop/recursive-types/intro` }],
           },
