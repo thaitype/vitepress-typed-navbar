@@ -1,5 +1,7 @@
 # @thaitype/vitepress-typed-navbar
 
+[![npm version](https://img.shields.io/npm/v/@thaitype/vitepress-typed-navbar)](https://www.npmjs.com/package/@thaitype/vitepress-typed-navbar)
+
 Vitepress Utils Library for Wrapping type-safe Navbar for support localization (i18n)
 
 ## Installation
