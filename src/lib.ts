@@ -17,6 +17,12 @@ export type BaseSidebar = Omit<DefaultTheme.SidebarItem, "items" | "base"> & {
    * @internal This is for internal use only.
    */
   isOverrided?: boolean;
+  /**
+   * Relative key for the sidebar item.
+   *
+   * When the link is not exist, it will use the default link.
+   */
+  relativeKey?: string;
 };
 
 export type ObjectKey = string | number | symbol;
@@ -115,19 +121,22 @@ export class Sidebar<
    * Using the key `mapped-types`, return `/mapped-types`
    *
    * @param group GroupKey
-   * @param key Key or Full path
+   * @param keyOrRelativeKey Key or Full path
    * @returns
    */
 
-  private mergeKey(group: ObjectKey | undefined, key: ObjectKey) {
-    if (group === undefined) return `/${trimSlash(String(key))}`;
+  private mergeKey(group: ObjectKey | undefined, keyOrRelativeKey: ObjectKey) {
+    if (group === undefined) return `/${trimSlash(String(keyOrRelativeKey))}`;
     const parsedGroup = trimSlash(String(group)) === "" ? "" : trimSlash(String(group)) + "/";
-    return `/${parsedGroup}${trimSlash(String(key))}`;
+    return `/${parsedGroup}${trimSlash(String(keyOrRelativeKey))}`;
   }
 
-  protected setItem(group: ObjectKey | undefined, key: ObjectKey, value: SidebarMetadata, mode: Mode = "add") {
-    if (mode === "add") value.order = this.order++;
-    const mergedKey = this.mergeKey(group, key);
+  protected setItem(group: ObjectKey | undefined, keyOrRelativeKey: ObjectKey, value: SidebarMetadata, mode: Mode = "add") {
+    if (mode === "add") {
+      value.order = this.order++;
+      value.relativeKey = String(keyOrRelativeKey);
+    }
+    const mergedKey = this.mergeKey(group, keyOrRelativeKey);
     if (mode === "override") {
       if (!this.items[mergedKey]) {
         throw new Error(`Item '${mergedKey}' is not found`);
@@ -147,11 +156,17 @@ export class Sidebar<
 
   add<Link extends RelativeLink, Group extends Extract<keyof Groups, string>, Key extends `${Group}/${Link}`>(
     group: Group,
-    key: Link,
+    relativeKey: Link,
     value: SidebarMetadata
   ) {
-    return this.setItem(group, key, value) as unknown as Sidebar<Groups, Items & Record<Key, SidebarMetadata>>;
+    return this.setItem(group, relativeKey, value) as unknown as Sidebar<Groups, Items & Record<Key, SidebarMetadata>>;
   }
+  /**
+   * 
+   * @param key Full path including the group key and the relativeKey
+   * @param value 
+   * @returns 
+   */
 
   override(key: keyof Items, value: SidebarMetadata) {
     return this.setItem(undefined, key, value, "override") as unknown as Sidebar<Groups, Items>;
@@ -243,20 +258,26 @@ export class Sidebar<
         if (!groupItem.items) {
           groupItem.items = [];
         }
-        const { prefix, isOverrided, link, ...newValue } = value;
+        const { prefix, isOverrided, link, relativeKey,...newValue } = value;
+        const parsedFindKey = trimSlash(findKey) === "" ? "" : "/" + trimSlash(findKey);
+        const prefixLink = prefix ?? globalPrefixLink ?? "";
         /**
          * If the link is exist, append the link with the findKey (group prefix path)
          */
         if (link) {
-          const parsedFindKey = trimSlash(findKey) === "" ? "" : "/" + trimSlash(findKey);
-          const prefixLink = prefix ?? globalPrefixLink ?? "";
           const newLink = `${prefixLink}${parsedFindKey}/${trimSlash(link)}`;
           if (prefixLink === "" && this.options.extraMessage && isOverrided) {
             newValue.text = `${newValue.text} ${this.options.extraMessage}`;
           } else {
             (newValue as SingleSidebarItem).link = newLink;
           }
+          /**
+           * If the link is not exist, use the default link
+           */
+        } else {
+          (newValue as SingleSidebarItem).link = `${prefixLink}${parsedFindKey}/${relativeKey ?? ''}`;
         }
+
         return groupItem.items.push(newValue);
       }
       if (groupItem.items) {
