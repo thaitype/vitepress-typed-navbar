@@ -216,6 +216,26 @@ describe("Sidebar Override", () => {
     ]);
   });
 
+  test("Add group and sidebar, then override at root path", () => {
+    const baseSidebar = new Sidebar()
+      .addGroup("/", { text: "Start Reading" })
+      .add("/", "intro", { text: "Introduction", link: `/intro` });
+
+    const sidebar = baseSidebar
+      .clone()
+      .override("/intro", { text: "Mapped Types", link: `/mapped-types` })
+      .toSidebarItems();
+
+    expect(sidebar).toStrictEqual([
+      {
+        key: "/",
+        text: "Start Reading",
+        items: [{ key: "/intro", text: "Mapped Types", link: `/mapped-types` }],
+      }
+    ]);
+  });
+
+
   test("Add group and sidebar, then override, with partial metadata", () => {
     const baseSidebar = new Sidebar()
       .addGroup("/", { text: "Start Reading" })

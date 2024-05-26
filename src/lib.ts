@@ -25,6 +25,7 @@ export type BaseSidebar = Omit<DefaultTheme.SidebarItem, "items" | "base"> & {
   relativeKey?: string;
 };
 
+export type RemoveRootTailingSlash<T extends string> = T extends "/" ? "" : `${T}`;
 export type ObjectKey = string | number | symbol;
 export type Mode = "add" | "override";
 export type SidebarMetadata = BaseSidebar;
@@ -131,7 +132,12 @@ export class Sidebar<
     return `/${parsedGroup}${trimSlash(String(keyOrRelativeKey))}`;
   }
 
-  protected setItem(group: ObjectKey | undefined, keyOrRelativeKey: ObjectKey, value: SidebarMetadata, mode: Mode = "add") {
+  protected setItem(
+    group: ObjectKey | undefined,
+    keyOrRelativeKey: ObjectKey,
+    value: SidebarMetadata,
+    mode: Mode = "add"
+  ) {
     if (mode === "add") {
       value.order = this.order++;
       value.relativeKey = String(keyOrRelativeKey);
@@ -154,18 +160,18 @@ export class Sidebar<
     return this;
   }
 
-  add<Link extends RelativeLink, Group extends Extract<keyof Groups, string>, Key extends `${Group}/${Link}`>(
-    group: Group,
-    relativeKey: Link,
-    value: SidebarMetadata
-  ) {
+  add<
+    Link extends RelativeLink,
+    Group extends Extract<keyof Groups, string>,
+    Key extends `${RemoveRootTailingSlash<Group>}/${Link}`,
+  >(group: Group, relativeKey: Link, value: SidebarMetadata) {
     return this.setItem(group, relativeKey, value) as unknown as Sidebar<Groups, Items & Record<Key, SidebarMetadata>>;
   }
   /**
-   * 
+   *
    * @param key Full path including the group key and the relativeKey
-   * @param value 
-   * @returns 
+   * @param value
+   * @returns
    */
 
   override(key: keyof Items, value: SidebarMetadata) {
@@ -258,7 +264,7 @@ export class Sidebar<
         if (!groupItem.items) {
           groupItem.items = [];
         }
-        const { prefix, isOverrided, link, relativeKey,...newValue } = value;
+        const { prefix, isOverrided, link, relativeKey, ...newValue } = value;
         const parsedFindKey = trimSlash(findKey) === "" ? "" : "/" + trimSlash(findKey);
         const prefixLink = prefix ?? globalPrefixLink ?? "";
         /**
@@ -275,7 +281,7 @@ export class Sidebar<
            * If the link is not exist, use the default link
            */
         } else {
-          (newValue as SingleSidebarItem).link = `${prefixLink}${parsedFindKey}/${relativeKey ?? ''}`;
+          (newValue as SingleSidebarItem).link = `${prefixLink}${parsedFindKey}/${relativeKey ?? ""}`;
         }
 
         return groupItem.items.push(newValue);
