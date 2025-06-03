@@ -19,6 +19,7 @@
   "scripts": {
     "start": "bun src/main.ts",
     "dev": "bun --watch src/main.ts",
+    "test": "bun test",
     "prepublishOnly": "bun run build",
     "release": "release-it",
     "build": "tsup src/main.ts --dts --format esm,cjs",

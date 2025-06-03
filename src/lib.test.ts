@@ -113,6 +113,20 @@ describe("Sidebar", () => {
     expect(sidebar).toBeDefined();
   });
 
+  test("should not add slash on link (Preserve starting slash behavior", () => {
+    const sidebar = new Sidebar()
+      .addGroup("/", { text: "Start Reading" })
+      .add("/", "intro", { text: "Introduction", link: "intro" });
+    expect(sidebar.toSidebarItems()).toStrictEqual([
+      {
+        key: "/",
+        text: "Start Reading",
+        items: [{ key: "/intro", text: "Introduction", link: `intro` }],
+      },
+    ]);
+  });
+
+
   test("should add a group to sidebar and it's items", () => {
     const sidebar = new Sidebar()
       .addGroup("/", { text: "Start Reading", collapsed: true })
@@ -445,3 +459,5 @@ describe("Sidebar with default link", () => {
     ]);
   });
 });
+
+

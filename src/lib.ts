@@ -48,6 +48,7 @@ export type RelativeLink = string;
  * @returns
  */
 export const trimSlash = (str: string) => str.replace(/^\/|\/$/g, "");
+export const trimRootSlash = (str: string) => str.replace(/^\/+/, "");
 
 export type SidebarOptions = Pick<DefaultTheme.SidebarItem, "collapsed"> & {
   /**
@@ -271,7 +272,9 @@ export class Sidebar<
          * If the link is exist, append the link with the findKey (group prefix path)
          */
         if (link) {
-          const newLink = `${prefixLink}${parsedFindKey}/${trimSlash(link)}`;
+          const isPerverseStartedWithSlash = link.startsWith("/");
+          const tmpLink = `${prefixLink}${parsedFindKey}/${trimSlash(link)}`;
+          const newLink = isPerverseStartedWithSlash ? tmpLink : `${trimRootSlash(tmpLink)}`;
           if (prefixLink === "" && this.options.extraMessage && isOverrided) {
             newValue.text = `${newValue.text} ${this.options.extraMessage}`;
           } else {
