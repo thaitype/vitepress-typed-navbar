@@ -1,6 +1,6 @@
 {
   "name": "@thaitype/vitepress-typed-navbar",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Vitepress Utils Library for Wrapping type-safe Navbar for support localization (i18n)",
   "type": "module",
   "main": "./dist/main.cjs",
@@ -19,6 +19,7 @@
   "scripts": {
     "start": "bun src/main.ts",
     "dev": "bun --watch src/main.ts",
+    "test": "bun test",
     "prepublishOnly": "bun run build",
     "release": "release-it",
     "build": "tsup src/main.ts --dts --format esm,cjs",
